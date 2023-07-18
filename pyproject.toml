@@ -1,0 +1,10 @@
+[project]
+name = "dependency_manager"
+version = "0.1.0"
+description = "Tool for managing dependencies"
+readme = "README.md"
+authors = [
+    { name = "Dani Alcala", email = "danalitovsky@gmail.com" }
+]
+requires-python = ">=3.8"
+
