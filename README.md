@@ -17,7 +17,7 @@ from dependency_manager import Dependency, DependencyManagerAbstract
 class DependencyManager(DependencyManagerAbstract):
     def get_parent_dir(self):
         """Must return a string, but can use `os.getcwd()` or anything else"""
-        return "tests/samples"
+        return "/some/path"
 
 ```
 Your `DependencyManager` is a now a  Singleton with one stated parent directory. This means that all the inference work done at initialization
