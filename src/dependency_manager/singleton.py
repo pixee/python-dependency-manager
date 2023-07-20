@@ -20,3 +20,9 @@ class Singleton:
         Subclasses should override this method for initialization, not __init__.
         """
         pass
+    @classmethod
+    def clear_instance(cls):
+        """Delete the singleton's current instance."""
+        instance = cls.__dict__.get("__instance__")
+        if instance is not None:
+            del cls.__instance__
