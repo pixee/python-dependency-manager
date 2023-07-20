@@ -12,12 +12,13 @@ of your program. As such, we provide a DependencyManagerAbstract. The first step
 
 ```python
 # app_manager.py
-from dependency_manager import Dependency, DependencyManagerAbstract
+from pathlib import Path
+from dependency_manager import DependencyManagerAbstract
 
 class DependencyManager(DependencyManagerAbstract):
     def get_parent_dir(self):
-        """Must return a string, but can use `os.getcwd()` or anything else"""
-        return "/some/path"
+        """Must return a `pathlib.Path` object, but can use `os.getcwd()` or anything else"""
+        return Path("/some/path")
 
 ```
 Your `DependencyManager` is a now a  Singleton with one stated parent directory. This means that all the inference work done at initialization
@@ -27,15 +28,13 @@ you define, etc.
 Once you've defined your manager, you can now use it:
 
 ```python
-from dependency_manager import Dependency
 from app_manager import DependencyManager
 
-DependencyManager().add([Dependency(name="requests", version="2.8.8")])
+DependencyManager().add(["requests==2.8.8"])
 ...
-
-DependencyManager().remove([Dependency(name="requests", version="*")])
+DependencyManager().add(["requests==*"])
 ...
-DependencyManager().remove([Dependency(name="pylint", version="*")])
+DependencyManager().remove(["pylint==*"])
 
 # Once you are ready to update the dependency file:
 DependencyManager().write()
