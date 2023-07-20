@@ -1,1 +1,1 @@
-from .manager import Dependency, DependencyManagerAbstract
+from .manager import DependencyManagerAbstract
