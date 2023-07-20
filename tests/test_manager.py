@@ -14,7 +14,7 @@ class TestManager:
     def test_is_singleton(self):
         class DependencyManager(DependencyManagerAbstract):
             def get_parent_dir(self):
-                return Path(os.getcwd())
+                return path_with_req
 
         dm1 = DependencyManager()
         dm2 = DependencyManager()
