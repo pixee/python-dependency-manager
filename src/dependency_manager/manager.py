@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 import pkg_resources
+from typing import Union
 from .singleton import Singleton
 
 
@@ -55,7 +56,7 @@ class DependencyManagerAbstract(Singleton, ABC):
     def _write(self, dependencies):
         with open(self.dependency_file, "w", encoding="utf-8") as f:
             f.writelines("\n".join(dependencies))
-    def _infer_dependency_files(self) -> Path | None:
+    def _infer_dependency_files(self) -> Union[Path, None]:
         try:
             # For now for simplicity only return the first file
             return next(Path(self.parent_directory).rglob("requirements.txt"))
