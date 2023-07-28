@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-import pkg_resources
 from typing import Union
+import pkg_resources
 from .singleton import Singleton
 
 
 class DependencyManagerAbstract(Singleton, ABC):
-    def init(self):
+    def init(self, dry_run=False):
         """One-time class initialization."""
         self.parent_directory = self.get_parent_dir()
         self.dependency_file = self._infer_dependency_files()
         self.dependencies = self._infer_dependencies()
         self.dependencies_changed = False
         self.dependency_file_changed = False
+        self.dry_run = dry_run
 
     @abstractmethod
     def get_parent_dir(self) -> Path:
@@ -46,16 +47,29 @@ class DependencyManagerAbstract(Singleton, ABC):
                 self.dependencies_changed = True
 
     def write(self):
-        if not self.dependency_file or not self.dependencies or not self.dependencies_changed:
+        """
+        Write the updated dependency files if any changes were made.
+        If the dry_run flag is set, print it to stdout instead.
+        """
+        if (
+            not self.dependency_file
+            or not self.dependencies
+            or not self.dependencies_changed
+        ):
             return
 
         dependencies = [str(req) for req in self.dependencies]
-        self._write(dependencies)
+        if not self.dry_run:
+            self._write(dependencies)
+        else:
+            print("\n".join(dependencies))
         self.dependency_file_changed = True
 
     def _write(self, dependencies):
-        with open(self.dependency_file, "w", encoding="utf-8") as f:
-            f.writelines("\n".join(dependencies))
+        if not self.dry_run:
+            with open(self.dependency_file, "w", encoding="utf-8") as f:
+                f.writelines("\n".join(dependencies))
+
     def _infer_dependency_files(self) -> Union[Path, None]:
         try:
             # For now for simplicity only return the first file
