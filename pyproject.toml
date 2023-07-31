@@ -1,6 +1,6 @@
 [project]
 name = "dependency_manager"
-version = "0.1.1"
+version = "0.1.0"
 description = "Tool for managing dependencies"
 readme = "README.md"
 authors = [
