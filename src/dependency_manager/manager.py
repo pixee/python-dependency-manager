@@ -59,16 +59,15 @@ class DependencyManagerAbstract(Singleton, ABC):
             return
 
         dependencies = [str(req) for req in self.dependencies]
-        if not self.dry_run:
-            self._write(dependencies)
-        else:
+        if self.dry_run:
             print("\n".join(dependencies))
+        else:
+            self._write(dependencies)
         self.dependency_file_changed = True
 
     def _write(self, dependencies):
-        if not self.dry_run:
-            with open(self.dependency_file, "w", encoding="utf-8") as f:
-                f.writelines("\n".join(dependencies))
+        with open(self.dependency_file, "w", encoding="utf-8") as f:
+            f.writelines("\n".join(dependencies))
 
     def _infer_dependency_files(self) -> Union[Path, None]:
         try:
