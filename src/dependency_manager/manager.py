@@ -6,14 +6,25 @@ from .singleton import Singleton
 
 
 class DependencyManagerAbstract(Singleton, ABC):
-    def init(self, dry_run=False):
+    def init(self):
         """One-time class initialization."""
         self.parent_directory = self.get_parent_dir()
-        self.dependency_file = self._infer_dependency_files()
-        self.dependencies = self._infer_dependencies()
+        self._dependency_file = None
+        self._dependencies = None
         self.dependencies_changed = False
         self.dependency_file_changed = False
-        self.dry_run = dry_run
+
+    @property
+    def dependency_file(self):
+        if not self._dependency_file:
+            self._dependency_file = self._infer_dependency_files()
+        return self._dependency_file
+
+    @property
+    def dependencies(self):
+        if not self._dependencies:
+            self._dependencies = self._infer_dependencies()
+        return self._dependencies
 
     @abstractmethod
     def get_parent_dir(self) -> Path:
@@ -46,20 +57,16 @@ class DependencyManagerAbstract(Singleton, ABC):
                 self.dependencies.remove(dep)
                 self.dependencies_changed = True
 
-    def write(self):
+    def write(self, dry_run=False):
         """
         Write the updated dependency files if any changes were made.
         If the dry_run flag is set, print it to stdout instead.
         """
-        if (
-            not self.dependency_file
-            or not self.dependencies
-            or not self.dependencies_changed
-        ):
+        if not self.dependencies_changed:
             return
 
         dependencies = [str(req) for req in self.dependencies]
-        if self.dry_run:
+        if dry_run:
             print("\n".join(dependencies))
         else:
             self._write(dependencies)
