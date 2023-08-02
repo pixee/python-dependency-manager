@@ -3,28 +3,15 @@ from pathlib import Path
 from typing import Union
 import pkg_resources
 from .singleton import Singleton
+from functools import cached_property
 
 
 class DependencyManagerAbstract(Singleton, ABC):
     def init(self):
         """One-time class initialization."""
         self.parent_directory = self.get_parent_dir()
-        self._dependency_file = None
-        self._dependencies = None
         self.dependencies_changed = False
         self.dependency_file_changed = False
-
-    @property
-    def dependency_file(self):
-        if not self._dependency_file:
-            self._dependency_file = self._infer_dependency_files()
-        return self._dependency_file
-
-    @property
-    def dependencies(self):
-        if not self._dependencies:
-            self._dependencies = self._infer_dependencies()
-        return self._dependencies
 
     @abstractmethod
     def get_parent_dir(self) -> Path:
@@ -76,7 +63,8 @@ class DependencyManagerAbstract(Singleton, ABC):
         with open(self.dependency_file, "w", encoding="utf-8") as f:
             f.writelines("\n".join(dependencies))
 
-    def _infer_dependency_files(self) -> Union[Path, None]:
+    @cached_property
+    def dependency_file(self) -> Union[Path, None]:
         try:
             # For now for simplicity only return the first file
             return next(Path(self.parent_directory).rglob("requirements.txt"))
@@ -84,7 +72,8 @@ class DependencyManagerAbstract(Singleton, ABC):
             pass
         return None
 
-    def _infer_dependencies(self) -> list[pkg_resources.Requirement]:
+    @cached_property
+    def dependencies(self) -> list[pkg_resources.Requirement]:
         """
         Extract list of dependencies from requirements.txt file.
         Same order of requirements is maintained, no alphabetical sorting is done.
