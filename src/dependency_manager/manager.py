@@ -3,17 +3,15 @@ from pathlib import Path
 from typing import Union
 import pkg_resources
 from .singleton import Singleton
+from functools import cached_property
 
 
 class DependencyManagerAbstract(Singleton, ABC):
-    def init(self, dry_run=False):
+    def init(self):
         """One-time class initialization."""
         self.parent_directory = self.get_parent_dir()
-        self.dependency_file = self._infer_dependency_files()
-        self.dependencies = self._infer_dependencies()
         self.dependencies_changed = False
         self.dependency_file_changed = False
-        self.dry_run = dry_run
 
     @abstractmethod
     def get_parent_dir(self) -> Path:
@@ -46,20 +44,16 @@ class DependencyManagerAbstract(Singleton, ABC):
                 self.dependencies.remove(dep)
                 self.dependencies_changed = True
 
-    def write(self):
+    def write(self, dry_run=False):
         """
         Write the updated dependency files if any changes were made.
         If the dry_run flag is set, print it to stdout instead.
         """
-        if (
-            not self.dependency_file
-            or not self.dependencies
-            or not self.dependencies_changed
-        ):
+        if not self.dependencies_changed:
             return
 
         dependencies = [str(req) for req in self.dependencies]
-        if self.dry_run:
+        if dry_run:
             print("\n".join(dependencies))
         else:
             self._write(dependencies)
@@ -69,7 +63,8 @@ class DependencyManagerAbstract(Singleton, ABC):
         with open(self.dependency_file, "w", encoding="utf-8") as f:
             f.writelines("\n".join(dependencies))
 
-    def _infer_dependency_files(self) -> Union[Path, None]:
+    @cached_property
+    def dependency_file(self) -> Union[Path, None]:
         try:
             # For now for simplicity only return the first file
             return next(Path(self.parent_directory).rglob("requirements.txt"))
@@ -77,7 +72,8 @@ class DependencyManagerAbstract(Singleton, ABC):
             pass
         return None
 
-    def _infer_dependencies(self) -> list[pkg_resources.Requirement]:
+    @cached_property
+    def dependencies(self) -> list[pkg_resources.Requirement]:
         """
         Extract list of dependencies from requirements.txt file.
         Same order of requirements is maintained, no alphabetical sorting is done.

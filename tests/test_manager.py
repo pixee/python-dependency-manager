@@ -124,10 +124,10 @@ class TestManager:
             def get_parent_dir(self):
                 return path_with_req
 
-        manager = DependencyManager(dry_run=True)
+        manager = DependencyManager()
         first_dep = manager.dependencies[0]
         manager.remove([str(first_dep)])
-        manager.write()
+        manager.write(dry_run=True)
         with open(manager.dependency_file, "r", encoding="utf-8") as dep_file:
             contents = dep_file.read()
         assert contents == original_contents
