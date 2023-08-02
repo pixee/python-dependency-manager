@@ -76,12 +76,12 @@ class TestManager:
 
         DependencyManager().add(["my_pkg==1"])
         assert len(manager.dependencies) == 5
-        my_pkg = manager.dependencies[-1]
+        my_pkg = next(reversed(manager.dependencies))
         assert str(my_pkg) == "my_pkg==1"
 
         DependencyManager().add(["my_pkg_no_ver"])
         assert len(manager.dependencies) == 6
-        my_pkg = manager.dependencies[-1]
+        my_pkg = next(reversed(manager.dependencies))
         assert str(my_pkg) == "my_pkg_no_ver"
 
         # don't add already existing dep
@@ -108,7 +108,7 @@ class TestManager:
         assert manager.dependency_file == path_with_req / "requirements.txt"
         assert len(manager.dependencies) == 4
 
-        first_dep = manager.dependencies[0]
+        first_dep = next(iter(manager.dependencies))
         manager.remove([str(first_dep)])
         assert len(manager.dependencies) == 3
 
@@ -125,7 +125,7 @@ class TestManager:
                 return path_with_req
 
         manager = DependencyManager()
-        first_dep = manager.dependencies[0]
+        first_dep = next(iter(manager.dependencies))
         manager.remove([str(first_dep)])
         manager.write(dry_run=True)
         with open(manager.dependency_file, "r", encoding="utf-8") as dep_file:
@@ -141,7 +141,7 @@ class TestManager:
                 return path_with_req_with_cleanup
 
         manager = DependencyManager()
-        first_dep = manager.dependencies[0]
+        first_dep = next(iter(manager.dependencies))
         manager.remove([str(first_dep)])
         manager.write()
         with open(manager.dependency_file, "r", encoding="utf-8") as dep_file:
