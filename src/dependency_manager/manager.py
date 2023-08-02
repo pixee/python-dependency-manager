@@ -29,7 +29,7 @@ class DependencyManagerAbstract(Singleton, ABC):
                 continue
 
             if dep not in self.dependencies:
-                self.dependencies.append(dep)
+                self.dependencies.update({dep: None})
                 self.dependencies_changed = True
 
     def remove(self, dependencies: list[str]):
@@ -41,7 +41,7 @@ class DependencyManagerAbstract(Singleton, ABC):
                 continue
 
             if dep in self.dependencies:
-                self.dependencies.remove(dep)
+                self.dependencies.pop(dep)
                 self.dependencies_changed = True
 
     def write(self, dry_run=False):
@@ -73,13 +73,13 @@ class DependencyManagerAbstract(Singleton, ABC):
         return None
 
     @cached_property
-    def dependencies(self) -> list[pkg_resources.Requirement]:
+    def dependencies(self) -> dict[pkg_resources.Requirement, None]:
         """
         Extract list of dependencies from requirements.txt file.
         Same order of requirements is maintained, no alphabetical sorting is done.
         """
         if not self.dependency_file:
-            return []
+            return dict()
         with open(self.dependency_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
-        return list(pkg_resources.parse_requirements(lines))
+        return {req: None for req in pkg_resources.parse_requirements(lines)}
