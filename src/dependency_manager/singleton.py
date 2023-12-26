@@ -7,8 +7,7 @@ class Singleton:
     """
 
     def __new__(cls, *args, **kwds):
-        instance = cls.__dict__.get("__instance__")
-        if instance is not None:
+        if (instance := cls.__dict__.get("__instance__")) is not None:
             return instance
 
         cls.__instance__ = instance = object.__new__(cls)
@@ -24,6 +23,5 @@ class Singleton:
     @classmethod
     def clear_instance(cls):
         """Delete the singleton's current instance."""
-        instance = cls.__dict__.get("__instance__")
-        if instance is not None:
+        if (instance := cls.__dict__.get("__instance__")) is not None:
             del cls.__instance__
